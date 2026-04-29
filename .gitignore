@@ -1,0 +1,19 @@
+# backend
+/backend/target/
+backend/.mvn/
+backend/.idea/
+
+# frontend (sau này)
+/frontend/node_modules/
+/frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+$RECYCLE.BIN/
+System Volume Information/
+
+# logs
+*.log
