@@ -1,6 +1,6 @@
 package com.clinic.backend.module.security;
 
-import com.clinic.backend.module.entity.User;
+import com.clinic.backend.module.user.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;

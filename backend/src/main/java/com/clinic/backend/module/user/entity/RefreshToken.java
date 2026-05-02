@@ -1,4 +1,4 @@
-package com.clinic.backend.module.entity;
+package com.clinic.backend.module.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,13 +14,15 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id; // ✅ FIX: Integer -> Long
 
+    @Column(nullable = false)
     private String token;
 
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

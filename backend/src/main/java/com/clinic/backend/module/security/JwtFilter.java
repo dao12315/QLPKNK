@@ -1,7 +1,7 @@
 package com.clinic.backend.module.security;
 
-import com.clinic.backend.module.entity.User;
-import com.clinic.backend.module.repository.UserRepository;
+import com.clinic.backend.module.user.entity.User;
+import com.clinic.backend.module.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,10 +55,11 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String userId = jwtService.extractUserId(token);
+        Long userId = Long.parseLong(jwtService.extractUserId(token));
         System.out.println("🔵 USER ID: " + userId);
 
-        User user = userRepository.findById(Integer.parseInt(userId)).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
+
 
         if (user == null) {
             System.out.println("❌ USER NOT FOUND");

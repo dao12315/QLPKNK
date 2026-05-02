@@ -1,4 +1,4 @@
-package com.clinic.backend.module.dto;
+package com.clinic.backend.module.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

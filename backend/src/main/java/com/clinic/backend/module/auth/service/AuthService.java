@@ -1,11 +1,11 @@
-package com.clinic.backend.module.auth;
+package com.clinic.backend.module.auth.service;
 
-import com.clinic.backend.module.dto.LoginRequest;
-import com.clinic.backend.module.dto.TokenResponse;
-import com.clinic.backend.module.entity.RefreshToken;
-import com.clinic.backend.module.entity.User;
-import com.clinic.backend.module.repository.RefreshTokenRepository;
-import com.clinic.backend.module.repository.UserRepository;
+import com.clinic.backend.module.user.dto.LoginRequest;
+import com.clinic.backend.module.user.dto.TokenResponse;
+import com.clinic.backend.module.user.entity.RefreshToken;
+import com.clinic.backend.module.user.entity.User;
+import com.clinic.backend.module.user.repository.RefreshTokenRepository;
+import com.clinic.backend.module.user.repository.UserRepository;
 import com.clinic.backend.module.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
