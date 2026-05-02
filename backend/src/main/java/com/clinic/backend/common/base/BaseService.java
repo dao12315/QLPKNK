@@ -1,8 +1,10 @@
 package com.clinic.backend.common.base;
 
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
-public interface BaseService<Req, Res> {
+public interface BaseService<Req, Res, F> {
 
     Res create(Req request);
 
@@ -12,5 +14,5 @@ public interface BaseService<Req, Res> {
 
     Res getById(Long id);
 
-    List<Res> getAll();
+    Page<Res> search(F filter);
 }

@@ -26,7 +26,4 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    @Column
-    private String status; // DB có field này → thêm vào
-
 }

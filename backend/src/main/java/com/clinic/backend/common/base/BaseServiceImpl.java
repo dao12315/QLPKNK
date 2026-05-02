@@ -1,16 +1,21 @@
 package com.clinic.backend.common.base;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-public abstract class BaseServiceImpl<E, Req, Res>
-        implements BaseService<Req, Res> {
+public abstract class BaseServiceImpl<E, Req, Res, F>
+        implements BaseService<Req, Res, F> {
 
     protected final BaseRepository<E, Long> repository;
     protected final BaseMapper<E, Req, Res> mapper;
+
+    protected BaseServiceImpl(BaseRepository<E, Long> repository,
+                              BaseMapper<E, Req, Res> mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
 
     @Override
     public Res create(Req request) {
@@ -46,8 +51,9 @@ public abstract class BaseServiceImpl<E, Req, Res>
         );
     }
 
+
     @Override
-    public List<Res> getAll() {
-        return mapper.toList(repository.findAll());
+    public Page<Res> search(F filter) {
+        throw new UnsupportedOperationException("Search not implemented");
     }
 }

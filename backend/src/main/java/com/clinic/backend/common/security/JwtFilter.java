@@ -1,4 +1,4 @@
-package com.clinic.backend.module.security;
+package com.clinic.backend.common.security;
 
 import com.clinic.backend.module.user.entity.User;
 import com.clinic.backend.module.user.repository.UserRepository;

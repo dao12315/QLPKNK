@@ -2,7 +2,10 @@ package com.clinic.backend.module.user.service;
 
 import com.clinic.backend.common.base.BaseService;
 import com.clinic.backend.module.user.dto.CreateUserRequest;
-import com.clinic.backend.module.user.dto.TokenResponse;
+import com.clinic.backend.module.user.dto.UserFilter;
+import com.clinic.backend.module.user.dto.UserResponse;
+import org.springframework.data.domain.Page;
 
-public interface UserService extends BaseService<CreateUserRequest, TokenResponse> {
+public interface UserService extends BaseService<CreateUserRequest, UserResponse, UserFilter> {
+    Page<UserResponse> search(UserFilter filter);
 }

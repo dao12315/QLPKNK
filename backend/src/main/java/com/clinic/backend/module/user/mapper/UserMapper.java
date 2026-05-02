@@ -2,14 +2,15 @@ package com.clinic.backend.module.user.mapper;
 
 import com.clinic.backend.common.base.BaseMapper;
 import com.clinic.backend.module.user.dto.CreateUserRequest;
+import com.clinic.backend.module.user.dto.UserResponse;
 import com.clinic.backend.module.user.entity.User;
-import com.clinic.backend.module.user.dto.TokenResponse;
+import com.clinic.backend.module.auth.dto.TokenResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class UserMapper implements BaseMapper<User, CreateUserRequest, TokenResponse> {
+public class UserMapper implements BaseMapper<User, CreateUserRequest, UserResponse> {
 
     @Override
     public User toEntity(CreateUserRequest req) {
@@ -22,10 +23,9 @@ public class UserMapper implements BaseMapper<User, CreateUserRequest, TokenResp
     }
 
     @Override
-    public TokenResponse toResponse(User u) {
-        return new TokenResponse(
-                null,
-                null,
+    public UserResponse toResponse(User u) {
+        return new UserResponse(
+                u.getId(),
                 u.getEmail(),
                 u.getName(),
                 u.getRole()
@@ -33,7 +33,7 @@ public class UserMapper implements BaseMapper<User, CreateUserRequest, TokenResp
     }
 
     @Override
-    public List<TokenResponse> toList(List<User> list) {
+    public List<UserResponse> toList(List<User> list) {
         return list.stream().map(this::toResponse).toList();
     }
 

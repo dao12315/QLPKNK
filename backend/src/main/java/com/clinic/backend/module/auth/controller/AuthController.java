@@ -1,9 +1,9 @@
 package com.clinic.backend.module.auth.controller;
 
 import com.clinic.backend.module.auth.service.AuthService;
-import com.clinic.backend.module.user.dto.LoginRequest;
-import com.clinic.backend.module.user.dto.RefreshRequest;
-import com.clinic.backend.module.user.dto.TokenResponse;
+import com.clinic.backend.module.auth.dto.LoginRequest;
+import com.clinic.backend.module.auth.dto.RefreshRequest;
+import com.clinic.backend.module.auth.dto.TokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
