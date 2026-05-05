@@ -2,9 +2,11 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { UserRole } from '@/src/types/auth';
 import { ProtectedRoute } from './ProtectedRoute';
+import { GuestRoute } from './GuestRoute';
 import { ErrorBoundary } from '@/src/shared/components/ErrorBoundary';
+import UnauthorizedPage from '@/src/shared/pages/UnauthorizedPage';
 
-// Lazy load components
+// Lazy load
 const LoginPage = lazy(() => import('@/src/features/auth/pages/LoginPage'));
 const DashboardPage = lazy(() => import('@/src/features/admin/pages/DashboardPage'));
 const PatientProfilePage = lazy(() => import('@/src/features/patient/pages/ProfilePage'));
@@ -17,14 +19,24 @@ const LoadingFallback = () => (
 );
 
 const router = createBrowserRouter([
+  // ================= PUBLIC =================
   {
     path: '/',
     element: <GuestHomePage />,
   },
+
+  // ================= GUEST ONLY =================
   {
-    path: '/login',
-    element: <LoginPage />,
+    element: <GuestRoute />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+    ],
   },
+
+  // ================= USER =================
   {
     element: <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.ADMIN]} />,
     children: [
@@ -34,6 +46,8 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  // ================= ADMIN =================
   {
     element: <ProtectedRoute allowedRoles={[UserRole.ADMIN]} />,
     children: [
@@ -43,6 +57,13 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+  // ================= SYSTEM =================
+  {
+    path: '/unauthorized',
+    element: <UnauthorizedPage />,
+  },
+
   {
     path: '*',
     element: <Navigate to="/" replace />,
