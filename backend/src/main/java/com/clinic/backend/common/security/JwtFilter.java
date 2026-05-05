@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,15 +14,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public JwtFilter(JwtService jwtService, UserRepository userRepository) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -31,9 +33,16 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        // ===================== SKIP OPTIONS =====================
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         System.out.println("\n==============================");
         System.out.println("🔵 REQUEST: " + request.getMethod() + " " + request.getRequestURI());
 
+        // ===================== GET TOKEN =====================
         String header = request.getHeader("Authorization");
         System.out.println("🔵 AUTH HEADER: " + header);
 
@@ -46,6 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = header.substring(7);
         System.out.println("🔵 TOKEN: " + token);
 
+        // ===================== VALIDATE TOKEN =====================
         boolean valid = jwtService.validate(token);
         System.out.println("🔵 TOKEN VALID: " + valid);
 
@@ -55,11 +65,21 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        Long userId = Long.parseLong(jwtService.extractUserId(token));
-        System.out.println("🔵 USER ID: " + userId);
+        // ===================== EXTRACT USER ID (UUID FIX) =====================
+        String userIdStr = jwtService.extractUserId(token);
+        System.out.println("🔵 USER ID STRING: " + userIdStr);
 
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdStr);
+        } catch (Exception e) {
+            System.out.println("❌ INVALID UUID FORMAT");
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // ===================== FIND USER =====================
         User user = userRepository.findById(userId).orElse(null);
-
 
         if (user == null) {
             System.out.println("❌ USER NOT FOUND");
@@ -67,15 +87,19 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        // ===================== ROLE =====================
+        String role = user.getRole().trim().toUpperCase();
+
         System.out.println("🟡 DB ROLE RAW: [" + user.getRole() + "]");
-        System.out.println("🟡 ROLE NORMALIZED: [" + user.getRole().trim().toLowerCase() + "]");
+        System.out.println("🟡 ROLE NORMALIZED: [" + role + "]");
 
         var authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().trim().toLowerCase())
+                new SimpleGrantedAuthority("ROLE_" + role)
         );
 
         System.out.println("🟢 AUTHORITIES: " + authorities);
 
+        // ===================== AUTH CONTEXT =====================
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(user, null, authorities);
 

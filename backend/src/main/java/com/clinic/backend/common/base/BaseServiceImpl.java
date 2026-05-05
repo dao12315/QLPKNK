@@ -5,13 +5,13 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public abstract class BaseServiceImpl<E, Req, Res, F>
-        implements BaseService<Req, Res, F> {
+public abstract class BaseServiceImpl<E, Req, Res, F, ID>
+        implements BaseService<Req, Res, F, ID> {
 
-    protected final BaseRepository<E, Long> repository;
+    protected final BaseRepository<E, ID> repository;
     protected final BaseMapper<E, Req, Res> mapper;
 
-    protected BaseServiceImpl(BaseRepository<E, Long> repository,
+    protected BaseServiceImpl(BaseRepository<E, ID> repository,
                               BaseMapper<E, Req, Res> mapper) {
         this.repository = repository;
         this.mapper = mapper;
@@ -25,7 +25,7 @@ public abstract class BaseServiceImpl<E, Req, Res, F>
     }
 
     @Override
-    public Res update(Long id, Req request) {
+    public Res update(ID id, Req request) {
         E entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Not found"));
 
@@ -36,7 +36,7 @@ public abstract class BaseServiceImpl<E, Req, Res, F>
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(ID id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Not found");
         }
@@ -44,7 +44,7 @@ public abstract class BaseServiceImpl<E, Req, Res, F>
     }
 
     @Override
-    public Res getById(Long id) {
+    public Res getById(ID id) {
         return mapper.toResponse(
                 repository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("Not found"))

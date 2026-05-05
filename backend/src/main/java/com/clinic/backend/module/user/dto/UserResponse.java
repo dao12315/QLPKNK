@@ -3,15 +3,17 @@ package com.clinic.backend.module.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 public class UserResponse {
 
-    private Long id;
-
-    private String email;
+    private UUID id;
 
     private String name;
+
+    private String email;
 
     private String role;
 }

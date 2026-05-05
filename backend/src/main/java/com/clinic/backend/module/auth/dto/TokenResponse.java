@@ -11,8 +11,5 @@ public class TokenResponse {
     private String accessToken;
     private String refreshToken;
     private UserResponse user;
-//    private String email;
-//    private String name;
-//    private String role;
 
 }

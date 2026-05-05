@@ -2,6 +2,7 @@ package com.clinic.backend.module.user.service.impl;
 
 import com.clinic.backend.common.base.BaseServiceImpl;
 import com.clinic.backend.common.exception.BadRequestException;
+import com.clinic.backend.module.user.dto.ChangePasswordRequest;
 import com.clinic.backend.module.user.dto.CreateUserRequest;
 import com.clinic.backend.module.auth.dto.TokenResponse;
 import com.clinic.backend.module.user.dto.UserFilter;
@@ -15,12 +16,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UserServiceImpl
-        extends BaseServiceImpl<User, CreateUserRequest, UserResponse,UserFilter>
+        extends BaseServiceImpl<User, CreateUserRequest, UserResponse,UserFilter, UUID>
         implements UserService {
 
     private final UserRepository repo;
@@ -76,5 +80,25 @@ public class UserServiceImpl
 
         return repo.findAll(spec, pageable)
                 .map(mapper::toResponse);
+    }
+    @Override
+    public void changePassword(ChangePasswordRequest req) {
+
+        User user = (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        // check password cũ
+        if (!encoder.matches(req.getOldPassword(), user.getPassword())) {
+            throw new BadRequestException("Old password is incorrect");
+        }
+
+        // encode password mới
+        user.setPassword(
+                encoder.encode(req.getNewPassword())
+        );
+
+        repo.save(user);
     }
 }

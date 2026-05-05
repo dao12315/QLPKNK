@@ -5,9 +5,10 @@ import com.clinic.backend.module.user.entity.User;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository
-        extends BaseRepository<User, Long>,
+        extends BaseRepository<User, UUID>,
         JpaSpecificationExecutor<User> {
 
     Optional<User> findByEmail(String email);
