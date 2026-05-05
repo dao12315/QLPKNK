@@ -2,6 +2,7 @@ package com.clinic.backend.module.auth.service;
 
 import com.clinic.backend.module.auth.dto.LoginRequest;
 import com.clinic.backend.module.auth.dto.TokenResponse;
+import com.clinic.backend.module.user.dto.UserResponse;
 import com.clinic.backend.module.user.entity.RefreshToken;
 import com.clinic.backend.module.user.entity.User;
 import com.clinic.backend.module.user.repository.RefreshTokenRepository;
@@ -10,6 +11,7 @@ import com.clinic.backend.common.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
@@ -28,7 +30,6 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public TokenResponse login(LoginRequest request) {
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -39,24 +40,18 @@ public class AuthService {
         String access = jwtService.generateAccessToken(user);
         String refresh = jwtService.generateRefreshToken(user);
 
-        RefreshToken token = new RefreshToken();
-        token.setUser(user);
-        token.setToken(refresh);
-        token.setExpiryDate(LocalDateTime.now().plusDays(7));
+        saveRefreshToken(user, refresh);
 
-        refreshRepo.save(token);
-
+        // Map sang cấu trúc mới
         return new TokenResponse(
                 access,
                 refresh,
-                user.getEmail(),
-                user.getName(),
-                user.getRole()
+                convertToUserResponse(user)
         );
     }
 
+    @Transactional
     public TokenResponse refresh(String refreshToken) {
-
         RefreshToken token = refreshRepo.findByToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Token not found"));
 
@@ -70,30 +65,40 @@ public class AuthService {
         }
 
         User user = token.getUser();
-
-        // rotate refresh token
-        refreshRepo.delete(token);
+        refreshRepo.delete(token); // Rotate token
 
         String newAccess = jwtService.generateAccessToken(user);
         String newRefresh = jwtService.generateRefreshToken(user);
 
-        RefreshToken newToken = new RefreshToken();
-        newToken.setUser(user);
-        newToken.setToken(newRefresh);
-        newToken.setExpiryDate(LocalDateTime.now().plusDays(7));
-
-        refreshRepo.save(newToken);
+        saveRefreshToken(user, newRefresh);
 
         return new TokenResponse(
                 newAccess,
                 newRefresh,
-                user.getEmail(),
-                user.getName(),
-                user.getRole()
+                convertToUserResponse(user)
         );
     }
 
+    @Transactional
     public void logout(String refreshToken) {
         refreshRepo.deleteByToken(refreshToken);
+    }
+
+    // Hàm bổ trợ để tránh lặp code (Helper methods)
+    private void saveRefreshToken(User user, String token) {
+        RefreshToken refreshTokenEntity = new RefreshToken();
+        refreshTokenEntity.setUser(user);
+        refreshTokenEntity.setToken(token);
+        refreshTokenEntity.setExpiryDate(LocalDateTime.now().plusDays(7));
+        refreshRepo.save(refreshTokenEntity);
+    }
+
+    private UserResponse convertToUserResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 }
