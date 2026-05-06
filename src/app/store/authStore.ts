@@ -1,24 +1,24 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '@/src/types/auth';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { User } from "@/src/types/auth";
 
-interface AuthStoreState {
+interface AuthState {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
 
-  isAuthenticated: boolean; // ✅ thêm
+  isAuthenticated: boolean;
   isHydrated: boolean;
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string | null, refreshToken: string | null) => void;
   logout: () => void;
   setHydrated: (state: boolean) => void;
 }
 
-export const useAuthStore = create<AuthStoreState>()(
+export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthStoreState>()(
         set({
           accessToken,
           refreshToken,
-          isAuthenticated: !!accessToken, // ✅ sync lại
+          isAuthenticated: !!accessToken && !!get().user,
         }),
 
       logout: () =>
@@ -48,28 +48,20 @@ export const useAuthStore = create<AuthStoreState>()(
           isAuthenticated: false,
         }),
 
-      setHydrated: (state) =>
-        set({
-          isHydrated: state,
-        }),
+      setHydrated: (state) => set({ isHydrated: state }),
     }),
     {
-      name: 'auth-storage',
-
+      name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
-
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.setHydrated(true);
-
-          // ✅ khôi phục lại isAuthenticated
-          state.setTokens(state.accessToken!, state.refreshToken!);
-        }
+        if (!state) return;
+        state.setHydrated(true);
+        state.isAuthenticated = !!state.accessToken && !!state.user;
       },
-    }
-  )
+    },
+  ),
 );

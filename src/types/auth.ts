@@ -1,13 +1,13 @@
 export enum UserRole {
-  AN_DANH = 'AN_DANH',
-  USER = 'USER',
-  ADMIN = 'ADMIN',
+  AN_DANH = "AN_DANH",
+  USER = "USER",
+  ADMIN = "ADMIN",
 }
 
 export interface User {
   id: string;
+  name: string;
   email: string;
-  fullName: string;
   role: UserRole;
   avatar?: string;
 }

@@ -1,16 +1,27 @@
-import React, { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { UserRole } from '@/src/types/auth';
-import { ProtectedRoute } from './ProtectedRoute';
-import { GuestRoute } from './GuestRoute';
-import { ErrorBoundary } from '@/src/shared/components/ErrorBoundary';
-import UnauthorizedPage from '@/src/shared/pages/UnauthorizedPage';
+import React, { lazy, Suspense } from "react";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import { UserRole } from "@/src/types/auth";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { GuestRoute } from "./GuestRoute";
+import { ErrorBoundary } from "@/src/shared/components/ErrorBoundary";
+import UnauthorizedPage from "@/src/shared/pages/UnauthorizedPage";
+import RegisterPage from "@/src/features/auth/pages/RegisterPage";
 
 // Lazy load
-const LoginPage = lazy(() => import('@/src/features/auth/pages/LoginPage'));
-const DashboardPage = lazy(() => import('@/src/features/admin/pages/DashboardPage'));
-const PatientProfilePage = lazy(() => import('@/src/features/patient/pages/ProfilePage'));
-const GuestHomePage = lazy(() => import('@/src/features/auth/pages/GuestHomePage'));
+const LoginPage = lazy(() => import("@/src/features/auth/pages/LoginPage"));
+const DashboardPage = lazy(
+  () => import("@/src/features/admin/pages/DashboardPage"),
+);
+const PatientProfilePage = lazy(
+  () => import("@/src/features/patient/pages/ProfilePage"),
+);
+const GuestHomePage = lazy(
+  () => import("@/src/features/auth/pages/GuestHomePage"),
+);
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -21,7 +32,7 @@ const LoadingFallback = () => (
 const router = createBrowserRouter([
   // ================= PUBLIC =================
   {
-    path: '/',
+    path: "/",
     element: <GuestHomePage />,
   },
 
@@ -30,8 +41,12 @@ const router = createBrowserRouter([
     element: <GuestRoute />,
     children: [
       {
-        path: '/login',
+        path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
       },
     ],
   },
@@ -41,7 +56,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.ADMIN]} />,
     children: [
       {
-        path: '/profile',
+        path: "/profile",
         element: <PatientProfilePage />,
       },
     ],
@@ -52,7 +67,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={[UserRole.ADMIN]} />,
     children: [
       {
-        path: '/admin',
+        path: "/admin",
         element: <DashboardPage />,
       },
     ],
@@ -60,12 +75,12 @@ const router = createBrowserRouter([
 
   // ================= SYSTEM =================
   {
-    path: '/unauthorized',
+    path: "/unauthorized",
     element: <UnauthorizedPage />,
   },
 
   {
-    path: '*',
+    path: "*",
     element: <Navigate to="/" replace />,
   },
 ]);
