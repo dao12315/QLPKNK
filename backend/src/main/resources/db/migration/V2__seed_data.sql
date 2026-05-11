@@ -1,25 +1,128 @@
+-- =========================================================
+-- V2__seed_data.sql
+-- Seed users + patients + doctors
+-- Password gốc cho tất cả account: 123456
+--
+-- BCrypt hash generate từ:
+-- new BCryptPasswordEncoder().encode("123456")
+-- =========================================================
+
+-- =========================================================
 -- USERS
-INSERT INTO users (name, email, password, role)
+-- =========================================================
+
+INSERT INTO users (
+    id,
+    name,
+    email,
+    password,
+    role,
+    status
+)
 VALUES
-    ('Admin', 'admin@gmail.com', '123456', 'admin'),
-    ('Lễ tân', 'reception@gmail.com', '123456', 'receptionist'),
-    ('Bác sĩ A', 'doctor@gmail.com', '123456', 'dentist');
+    (
+        gen_random_uuid(),
+        'System Admin',
+        'admin@gmail.com',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'admin',
+        'active'
+    ),
+    (
+        gen_random_uuid(),
+        'Receptionist',
+        'reception@gmail.com',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'receptionist',
+        'active'
+    ),
+    (
+        gen_random_uuid(),
+        'Dr. Nguyen Van A',
+        'doctor1@gmail.com',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'dentist',
+        'active'
+    ),
+    (
+        gen_random_uuid(),
+        'Dr. Tran Thi B',
+        'doctor2@gmail.com',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'dentist',
+        'active'
+    ),
+    (
+        gen_random_uuid(),
+        'Nguyen Van Patient',
+        'patient1@gmail.com',
+        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+        'patient',
+        'active'
+    );
 
--- DOCTOR
-INSERT INTO doctors (user_id, specialization, experience_years)
-VALUES (3, 'Orthodontics', 5);
+-- =========================================================
+-- DOCTORS
+-- =========================================================
 
--- CHAIRS
-INSERT INTO chairs (name) VALUES ('Chair 1'), ('Chair 2');
+INSERT INTO doctors (
+    id,
+    user_id,
+    full_name,
+    specialization,
+    experience_years,
+    phone
+)
+SELECT
+    gen_random_uuid(),
+    u.id,
+    u.name,
+    'General Dentistry',
+    5,
+    '0900000001'
+FROM users u
+WHERE u.email = 'doctor1@gmail.com';
 
--- TEETH (FDI)
-INSERT INTO teeth(code) VALUES
-                            ('11'),('12'),('13'),('14'),('15'),('16'),('17'),('18'),
-                            ('21'),('22'),('23'),('24'),('25'),('26'),('27'),('28');
+INSERT INTO doctors (
+    id,
+    user_id,
+    full_name,
+    specialization,
+    experience_years,
+    phone
+)
+SELECT
+    gen_random_uuid(),
+    u.id,
+    u.name,
+    'Orthodontics',
+    8,
+    '0900000002'
+FROM users u
+WHERE u.email = 'doctor2@gmail.com';
 
--- SERVICES
-INSERT INTO services (name, price, duration_minutes)
-VALUES
-    ('Khám tổng quát', 100000, 30),
-    ('Nhổ răng', 300000, 45),
-    ('Trám răng', 200000, 30);
+-- =========================================================
+-- PATIENTS
+-- =========================================================
+
+INSERT INTO patients (
+    id,
+    user_id,
+    full_name,
+    phone,
+    gender,
+    date_of_birth,
+    address,
+    medical_history
+)
+SELECT
+    gen_random_uuid(),
+    u.id,
+    u.name,
+    '0912345678',
+    'male',
+    DATE '2000-01-01',
+    'Ha Noi',
+    'No allergy'
+FROM users u
+WHERE u.email = 'patient1@gmail.com';

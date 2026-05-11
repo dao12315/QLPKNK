@@ -1,0 +1,103 @@
+package com.clinic.backend.core.service.impl;
+
+import com.clinic.backend.core.common.base.BaseServiceImpl;
+import com.clinic.backend.core.domain.model.User;
+import com.clinic.backend.web.exception.BadRequestException;
+import com.clinic.backend.web.dto.ChangePasswordRequest;
+import com.clinic.backend.web.dto.CreateUserRequest;
+import com.clinic.backend.web.dto.UserFilter;
+import com.clinic.backend.web.dto.UserResponse;
+import com.clinic.backend.web.mapper.UserMapper;
+import com.clinic.backend.core.domain.repository.UserRepository;
+import com.clinic.backend.core.service.UserService;
+import com.clinic.backend.infrastructure.persistence.UserSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+public class UserServiceImpl
+        extends BaseServiceImpl<User, CreateUserRequest, UserResponse,UserFilter, UUID>
+        implements UserService {
+
+    private final UserRepository repo;
+    private final PasswordEncoder encoder;
+
+    public UserServiceImpl(UserRepository repo,
+                           UserMapper mapper,
+                           PasswordEncoder encoder) {
+        super(repo, mapper);
+        this.repo = repo;
+        this.encoder = encoder;
+    }
+
+    @Override
+    public UserResponse create(CreateUserRequest req) {
+
+        if (repo.findByEmail(req.getEmail()).isPresent()) {
+            throw new BadRequestException("Email already exists");
+        }
+
+        User u = mapper.toEntity(req);
+
+        u.setPassword(encoder.encode(req.getPassword()));
+        u.setRole(req.getRole().toLowerCase());
+
+        repo.save(u);
+
+        return mapper.toResponse(u);
+    }
+    @Override
+    public Page<UserResponse> search(UserFilter filter) {
+
+        // parse sort
+        String[] sortArr = filter.getSort().split(",");
+        Sort sort = Sort.by(
+                sortArr.length > 1 && sortArr[1].equalsIgnoreCase("desc")
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC,
+                sortArr[0]
+        );
+
+        Pageable pageable = PageRequest.of(
+                filter.getPage(),
+                filter.getSize(),
+                sort
+        );
+
+        var spec = UserSpecification.filter(
+                filter.getEmail(),
+                filter.getName(),
+                filter.getRole()
+        );
+
+        return repo.findAll(spec, pageable)
+                .map(mapper::toResponse);
+    }
+    @Override
+    public void changePassword(ChangePasswordRequest req) {
+
+        User user = (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        // check password cũ
+        if (!encoder.matches(req.getOldPassword(), user.getPassword())) {
+            throw new BadRequestException("Old password is incorrect");
+        }
+
+        // encode password mới
+        user.setPassword(
+                encoder.encode(req.getNewPassword())
+        );
+
+        repo.save(user);
+    }
+}
