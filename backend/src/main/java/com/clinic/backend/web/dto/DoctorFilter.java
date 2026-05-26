@@ -6,7 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PatientFilter extends BaseFilter {
+public class DoctorFilter extends BaseFilter {
     private String keyword;
+    private String fullName;
     private String phone;
+
 }

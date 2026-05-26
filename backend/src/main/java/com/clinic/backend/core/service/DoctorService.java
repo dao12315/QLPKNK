@@ -2,54 +2,63 @@ package com.clinic.backend.core.service;
 
 import com.clinic.backend.core.common.base.BaseMapper;
 import com.clinic.backend.core.common.base.BaseServiceImpl;
+import com.clinic.backend.core.domain.model.Doctor;
 import com.clinic.backend.core.domain.model.Patient;
 import com.clinic.backend.core.domain.model.User;
-import com.clinic.backend.web.exception.BadRequestException;
-import com.clinic.backend.web.dto.CreatePatientRequest;
-import com.clinic.backend.web.dto.PatientFilter;
-import com.clinic.backend.web.dto.PatientResponse;
-import com.clinic.backend.core.domain.repository.PatientRepository;
+import com.clinic.backend.core.domain.repository.DoctorRepository;
 import com.clinic.backend.core.domain.repository.UserRepository;
+import com.clinic.backend.web.dto.*;
+import com.clinic.backend.web.exception.BadRequestException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
-public class PatientService extends BaseServiceImpl<
-        Patient,
-        CreatePatientRequest,
-        PatientResponse,
-        PatientFilter,
+public class DoctorService extends BaseServiceImpl<
+        Doctor,
+        CreateDoctorRequest,
+        DoctorResponse,
+        DoctorFilter,
         UUID
         > {
 
-    private final PatientRepository patientRepository;
-    private final BaseMapper<Patient, CreatePatientRequest, PatientResponse> mapper;
+    private final DoctorRepository doctorRepository;
+    private final BaseMapper<Doctor,
+            CreateDoctorRequest,
+            DoctorResponse> mapper;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public PatientService(PatientRepository repository,
-                          BaseMapper<Patient, CreatePatientRequest, PatientResponse> mapper,
-                          UserRepository userRepository,
-                          PasswordEncoder passwordEncoder) {
+    public DoctorService(
+            DoctorRepository repository,
+            BaseMapper<Doctor,
+                    CreateDoctorRequest,
+                    DoctorResponse> mapper,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+
         super(repository, mapper);
-        this.patientRepository = repository;
+
+        this.doctorRepository = repository;
         this.mapper = mapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     // ================= CREATE =================
+
     @Transactional
     @Override
-    public PatientResponse create(CreatePatientRequest req) {
+    public DoctorResponse create(CreateDoctorRequest req) {
 
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
             throw new BadRequestException("Email already exists");
@@ -64,8 +73,7 @@ public class PatientService extends BaseServiceImpl<
                 passwordEncoder.encode(req.getPassword())
         );
 
-        user.setRole("patient");
-
+        user.setRole("dentist");
         user.setStatus("active");
 
         user.setCreatedAt(Instant.now());
@@ -73,28 +81,33 @@ public class PatientService extends BaseServiceImpl<
 
         user = userRepository.saveAndFlush(user);
 
-        Patient patient = mapper.toEntity(req);
-        patient.setCreatedAt(Instant.now());
-        patient.setUpdatedAt(Instant.now());
-        patient.setUser(user);
+        Doctor doctor = mapper.toEntity(req);
 
-        patient = patientRepository.saveAndFlush(patient);
+        doctor.setUser(user);
 
-        return mapper.toResponse(patient);
+        doctor.setCreatedAt(Instant.now());
+        doctor.setUpdatedAt(Instant.now());
+
+        doctor = doctorRepository.saveAndFlush(doctor);
+
+        return mapper.toResponse(doctor);
     }
+
     // ================= UPDATE =================
+
     @Transactional
     @Override
-    public PatientResponse update(UUID id, CreatePatientRequest req) {
+    public DoctorResponse update(UUID id,
+                                 CreateDoctorRequest req) {
 
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Doctor not found"));
 
-        // update patient fields
-        mapper.update(patient, req);
+        mapper.update(doctor, req);
 
-        // update user nếu cần
-        User user = patient.getUser();
+        User user = doctor.getUser();
+
         if (user != null) {
 
             if (req.getName() != null) {
@@ -120,40 +133,41 @@ public class PatientService extends BaseServiceImpl<
             user.setUpdatedAt(Instant.now());
         }
 
-        patient = patientRepository.saveAndFlush(patient);
+        doctor.setUpdatedAt(Instant.now());
 
-        return mapper.toResponse(patient);
+        doctor = doctorRepository.saveAndFlush(doctor);
+
+        return mapper.toResponse(doctor);
     }
 
     // ================= DELETE =================
+
     @Transactional
     @Override
     public void delete(UUID id) {
 
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Doctor not found"));
 
-        // nếu muốn xoá cả user
-        User user = patient.getUser();
+        User user = doctor.getUser();
 
-        patientRepository.delete(patient);
+        doctorRepository.delete(doctor);
 
         if (user != null) {
             userRepository.delete(user);
         }
     }
-
-    // ================= GET BY ID =================
     @Override
-    public PatientResponse getById(UUID id) {
-        Patient patient = patientRepository.findById(id)
+    public DoctorResponse getById(UUID id) {
+        Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
 
-        return mapper.toResponse(patient);
+        return mapper.toResponse(doctor);
     }
 
     @Override
-    public Page<PatientResponse> search(PatientFilter filter) {
+    public Page<DoctorResponse> search(DoctorFilter filter) {
 
         Pageable pageable = PageRequest.of(
                 filter.getPage(),
@@ -161,12 +175,12 @@ public class PatientService extends BaseServiceImpl<
                 Sort.by(Sort.Direction.DESC, "id")
         );
 
-        Page<Patient> patients;
+        Page<Doctor> doctors;
 
         if (filter.getKeyword() != null &&
                 !filter.getKeyword().isBlank()) {
 
-            patients = patientRepository
+            doctors = doctorRepository
                     .findByUser_NameContainingIgnoreCase(
                             filter.getKeyword(),
                             pageable
@@ -174,9 +188,9 @@ public class PatientService extends BaseServiceImpl<
 
         } else {
 
-            patients = patientRepository.findAll(pageable);
+            doctors = doctorRepository.findAll(pageable);
         }
 
-        return patients.map(mapper::toResponse);
+        return doctors.map(mapper::toResponse);
     }
 }

@@ -30,7 +30,7 @@ public class TreatmentService {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
-    private Service service;
+    private DentalService dentalService;
 
     @Size(max = 100)
     @NotNull

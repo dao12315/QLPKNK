@@ -16,8 +16,8 @@ import java.util.UUID;
 @Table(name = "appointments")
 public class Appointment {
     @Id
-    @ColumnDefault("gen_random_uuid()")
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
     @NotNull
@@ -30,9 +30,6 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chair_id")
-    private Chair chair;
 
     @NotNull
     @Column(name = "start_time", nullable = false)
@@ -67,6 +64,5 @@ public class Appointment {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
 
 }

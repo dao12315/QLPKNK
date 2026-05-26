@@ -27,6 +27,4 @@ public class UserController
     public void changePassword(@RequestBody ChangePasswordRequest req) {
         userService.changePassword(req);
     }
-
 }
-

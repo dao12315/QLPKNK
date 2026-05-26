@@ -3,8 +3,6 @@ package com.clinic.backend.core.common.base;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public abstract class BaseServiceImpl<E, Req, Res, F, ID>
         implements BaseService<Req, Res, F, ID> {
 

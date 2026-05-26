@@ -53,6 +53,4 @@ public class Doctor {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-
 }

@@ -3,6 +3,7 @@ package com.clinic.backend.core.domain.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "services")
-public class Service {
+public class DentalService {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -51,6 +52,4 @@ public class Service {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-
 }

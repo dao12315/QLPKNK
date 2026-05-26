@@ -1,9 +1,10 @@
 package com.clinic.backend.infrastructure.security;
 
 import com.clinic.backend.core.domain.model.User;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,49 +13,63 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    // 🔥 phải >= 32 ký tự
-    private final String SECRET = "my-super-secret-key-my-super-secret-key";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    @Value("${jwt.access-expiration:900000}")
+    private long accessExp;
 
-    private final long ACCESS_EXP = 1000 * 60 * 15;
-    private final long REFRESH_EXP = 1000L * 60 * 60 * 24 * 7;
+    @Value("${jwt.refresh-expiration:604800000}")
+    private long refreshExp;
+
+    private Key getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
-                .claim("role", user.getRole())
-                .claim  ("email", user.getEmail())
+                .claim("role", user.getRole())       // lưu "admin" / "dentist" / ...javabuilder.online
+                .claim("email", user.getEmail())
                 .claim("name", user.getName())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXP))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + accessExp))
+                .signWith(getKey())
                 .compact();
     }
 
     public String generateRefreshToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXP))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExp))
+                .signWith(getKey())
                 .compact();
     }
 
     public String extractUserId(String token) {
-        return getClaims(token).getSubject();
+        return extractClaims(token).getSubject();
+    }
+
+    /**
+     * Lấy role từ claims – tránh query DB trong JwtFilter
+     * Role được lưu dạng lowercase: "admin", "dentist", "receptionist", "patient"
+     */
+    public String extractRole(String token) {
+        return extractClaims(token).get("role", String.class);
     }
 
     public boolean validate(String token) {
         try {
-            getClaims(token);
+            extractClaims(token);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private Claims getClaims(String token) {
+    // package-private để JwtFilter dùng nếu cần thêm claims
+    public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
