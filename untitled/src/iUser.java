@@ -1,3 +1,3 @@
-public interface User {
-
+public interface iUser {
+    void spreak();
 }

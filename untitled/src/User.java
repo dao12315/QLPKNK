@@ -1,4 +1,8 @@
-package PACKAGE_NAME;
+public class User implements iUser{
 
-public class User {
+
+    @Override
+    public void spreak() {
+
+    }
 }
