@@ -33,12 +33,29 @@ const GuestHomePage = () => {
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <button
-                  onClick={() =>
-                    navigate(
-                      user?.role === UserRole.ADMIN ? "/admin" : "/profile",
-                    )
-                  }
-                  className="btn btn-primary"
+                  onClick={() => {
+                    switch (user?.role) {
+                      case UserRole.ADMIN:
+                        navigate("/admin");
+                        break;
+
+                      case UserRole.RECEPTIONIST:
+                        navigate("/receptionist");
+                        break;
+
+                      case UserRole.DENTIST:
+                        navigate("/dentist");
+                        break;
+
+                      case UserRole.PATIENT:
+                        navigate("/patient");
+                        break;
+
+                      default:
+                        navigate("/");
+                    }
+                  }}
+                  className="px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all"
                 >
                   Dashboard
                 </button>

@@ -8,6 +8,7 @@ import { UserRole } from "@/src/types/auth";
 import { motion } from "motion/react";
 import { Lock, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 import { authService } from "@/src/services/authService";
+import { useUIStore } from "@/src/app/store/uiStore";
 
 // ================= SCHEMA =================
 const loginSchema = z.object({
@@ -19,13 +20,25 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 // ================= ROLE HELPERS =================
 const mapRole = (role: string): UserRole => {
-  // nếu backend trả ROLE_ADMIN thì normalize luôn
-  const normalized = role.replace("ROLE_", "");
+  // normalize ROLE_ADMIN -> admin
+  const normalized = role.replace("ROLE_", "").toLowerCase();
 
-  if (["admin", "dentist", "receptionist"].includes(normalized)) {
-    return UserRole.ADMIN;
+  switch (normalized) {
+    case "admin":
+      return UserRole.ADMIN;
+
+    case "receptionist":
+      return UserRole.RECEPTIONIST;
+
+    case "dentist":
+      return UserRole.DENTIST;
+
+    case "patient":
+      return UserRole.PATIENT;
+
+    default:
+      return UserRole.AN_DANH;
   }
-  return UserRole.USER;
 };
 
 const isAdmin = (role: UserRole) => role === UserRole.ADMIN;
@@ -34,7 +47,7 @@ const isAdmin = (role: UserRole) => role === UserRole.ADMIN;
 const LoginPage = () => {
   const navigate = useNavigate();
   const { setAuth, isAuthenticated, isHydrated } = useAuthStore();
-
+  const addAlert = useUIStore((state) => state.addAlert);
   const {
     register,
     handleSubmit,
@@ -80,7 +93,7 @@ const LoginPage = () => {
         refreshToken,
       );
       console.log("AUTH STORE AFTER LOGIN:", useAuthStore.getState());
-
+      addAlert("Logged in successfully!", "success");
       navigate(isAdmin(role) ? "/admin" : "/profile");
     } catch (err: any) {
       console.error(err);

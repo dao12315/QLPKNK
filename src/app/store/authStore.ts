@@ -9,21 +9,26 @@ interface AuthState {
 
   isAuthenticated: boolean;
   isHydrated: boolean;
+  isSessionChecked: boolean;
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
-  setTokens: (accessToken: string | null, refreshToken: string | null) => void;
+  setUser: (user: User | null) => void;
+  setTokens: (accessToken: string | null, refreshToken?: string | null) => void;
   logout: () => void;
   setHydrated: (state: boolean) => void;
+  setSessionChecked: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
+
       isAuthenticated: false,
       isHydrated: false,
+      isSessionChecked: false,
 
       setAuth: (user, accessToken, refreshToken) =>
         set({
@@ -31,14 +36,19 @@ export const useAuthStore = create<AuthState>()(
           accessToken,
           refreshToken,
           isAuthenticated: true,
+          isSessionChecked: true,
+        }),
+
+      setUser: (user) =>
+        set({
+          user,
         }),
 
       setTokens: (accessToken, refreshToken) =>
-        set({
+        set((state) => ({
           accessToken,
-          refreshToken,
-          isAuthenticated: !!accessToken && !!get().user,
-        }),
+          refreshToken: refreshToken ?? state.refreshToken,
+        })),
 
       logout: () =>
         set({
@@ -46,21 +56,32 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
+          isSessionChecked: true,
         }),
 
-      setHydrated: (state) => set({ isHydrated: state }),
+      setHydrated: (state) =>
+        set({
+          isHydrated: state,
+        }),
+
+      setSessionChecked: (state) =>
+        set({
+          isSessionChecked: state,
+        }),
     }),
     {
       name: "auth-storage",
+
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
       }),
+
       onRehydrateStorage: () => (state) => {
         if (!state) return;
+
         state.setHydrated(true);
-        state.isAuthenticated = !!state.accessToken && !!state.user;
       },
     },
   ),

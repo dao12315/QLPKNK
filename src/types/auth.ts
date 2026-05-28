@@ -1,7 +1,10 @@
 export enum UserRole {
   AN_DANH = "AN_DANH",
-  USER = "USER",
-  ADMIN = "ADMIN",
+
+  ADMIN = "admin",
+  RECEPTIONIST = "receptionist",
+  DENTIST = "dentist",
+  PATIENT = "patient",
 }
 
 export interface User {

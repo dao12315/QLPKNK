@@ -4,7 +4,13 @@
  */
 
 import { AppRouter } from "./app/router";
+import { AlertContainer } from "./shared/components/ui/Alert";
 
 export default function App() {
-  return <AppRouter />;
+  return (
+    <>
+      <AppRouter />
+      <AlertContainer />
+    </>
+  );
 }
