@@ -3,6 +3,7 @@ package com.clinic.backend.web.dto;
 
 import com.clinic.backend.core.common.base.BaseFilter;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.time.Instant;
@@ -29,13 +30,31 @@ public class AppointmentDto {
         private Instant endTime;
 
         private String note;
+        private String reason;
+        private String symptoms;
+        @Pattern(regexp = "normal|high|urgent", message = "must be normal, high or urgent")
+        private String priority;
+    }
+
+    @Data
+    public static class UpdateRequest {
+        private UUID patientId;
+        private UUID doctorId;
+        private UUID chairId;
+        private Instant startTime;
+        private Instant endTime;
+        private String note;
+        private String reason;
+        private String symptoms;
+        @Pattern(regexp = "normal|high|urgent", message = "must be normal, high or urgent")
+        private String priority;
     }
 
     // ─── Request: Hủy lịch hẹn ───────────────────────────────
     @Data
     public static class CancelRequest {
-        @NotNull(message = "Cancellation reason is required")
         private String cancellationReason;
+        private String cancelReason;
     }
 
     // ─── Request: Dời lịch hẹn ───────────────────────────────
@@ -75,7 +94,14 @@ public class AppointmentDto {
         private Instant endTime;
         private String status;
         private String note;
+        private String reason;
+        private String symptoms;
+        private String priority;
         private String cancellationReason;
+        private String cancelReason;
+        private Instant confirmedAt;
+        private Instant checkedInAt;
+        private Instant completedAt;
 
         // Thông tin lịch gốc nếu đây là lịch được dời
         private UUID rescheduledFromId;

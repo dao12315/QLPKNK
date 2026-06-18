@@ -26,6 +26,10 @@ public class ScheduleMapper {
                 .startTime(s.getStartTime())
                 .endTime(s.getEndTime())
                 .isActive(s.getIsActive())
+                .room(s.getRoom())
+                .maxPatients(s.getMaxPatients())
+                .effectiveFrom(s.getEffectiveFrom())
+                .effectiveTo(s.getEffectiveTo())
                 .build();
     }
 

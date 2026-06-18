@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,14 @@ public class PrescriptionController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.create(request));
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<List<PrescriptionDto.Response>> getMine(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+
+        return ResponseEntity.ok(service.getMine(userId));
     }
 
     @GetMapping("/{id}")

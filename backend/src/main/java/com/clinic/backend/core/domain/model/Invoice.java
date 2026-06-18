@@ -31,15 +31,33 @@ public class Invoice {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
+    @Size(max = 50)
+    @Column(name = "invoice_code", unique = true, length = 50)
+    private String invoiceCode;
+
     @NotNull
     @ColumnDefault("0")
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @ColumnDefault("0")
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    private BigDecimal discountAmount;
+
+    @Column(name = "final_amount", precision = 10, scale = 2)
+    private BigDecimal finalAmount;
+
     @NotNull
     @ColumnDefault("0")
     @Column(name = "paid_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal paidAmount;
+
+    @Column(name = "remaining_amount", precision = 10, scale = 2)
+    private BigDecimal remainingAmount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "issued_by")
+    private User issuedBy;
 
     @Size(max = 20)
     @NotNull
@@ -49,6 +67,9 @@ public class Invoice {
 
     @Column(name = "note", length = Integer.MAX_VALUE)
     private String note;
+
+    @Column(name = "cancel_reason", length = Integer.MAX_VALUE)
+    private String cancelReason;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

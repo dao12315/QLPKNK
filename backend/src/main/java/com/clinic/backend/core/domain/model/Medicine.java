@@ -48,6 +48,22 @@ public class Medicine {
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
+    @ColumnDefault("0")
+    @Column(name = "min_stock")
+    private Integer minStock;
+
+    @Column(name = "active_ingredient", length = 100)
+    private String activeIngredient;
+
+    @Column(name = "concentration", length = 100)
+    private String concentration;
+
+    @Column(name = "manufacturer", length = 100)
+    private String manufacturer;
+
+    @Column(name = "usage_note", length = Integer.MAX_VALUE)
+    private String usageNote;
+
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)

@@ -28,9 +28,13 @@ public class DentalServiceService {
     public ServiceDto.Response create(ServiceDto.CreateRequest req) {
         DentalService entity = new DentalService();
         entity.setName(req.getName());
+        entity.setCode(req.getCode() != null ? req.getCode() : generateServiceCode());
+        entity.setCategory(req.getCategory());
         entity.setDescription(req.getDescription());
         entity.setPrice(req.getPrice());
         entity.setDurationMinutes(req.getDurationMinutes());
+        entity.setEstimatedDuration(req.getEstimatedDuration());
+        entity.setDefaultUnit(req.getDefaultUnit());
         entity.setIsActive(req.getIsActive() != null ? req.getIsActive() : true);
         entity.setCreatedAt(Instant.now());
         entity.setUpdatedAt(Instant.now());
@@ -41,9 +45,13 @@ public class DentalServiceService {
     public ServiceDto.Response update(UUID id, ServiceDto.UpdateRequest req) {
         DentalService entity = findOrThrow(id);
         if (req.getName()            != null) entity.setName(req.getName());
+        if (req.getCode()            != null) entity.setCode(req.getCode());
+        if (req.getCategory()        != null) entity.setCategory(req.getCategory());
         if (req.getDescription()     != null) entity.setDescription(req.getDescription());
         if (req.getPrice()           != null) entity.setPrice(req.getPrice());
         if (req.getDurationMinutes() != null) entity.setDurationMinutes(req.getDurationMinutes());
+        if (req.getEstimatedDuration() != null) entity.setEstimatedDuration(req.getEstimatedDuration());
+        if (req.getDefaultUnit()     != null) entity.setDefaultUnit(req.getDefaultUnit());
         if (req.getIsActive()        != null) entity.setIsActive(req.getIsActive());
         entity.setUpdatedAt(Instant.now());
         return toResponse(repo.saveAndFlush(entity));
@@ -96,12 +104,21 @@ public class DentalServiceService {
         return ServiceDto.Response.builder()
                 .id(s.getId())
                 .name(s.getName())
+                .code(s.getCode())
+                .category(s.getCategory())
                 .description(s.getDescription())
                 .price(s.getPrice())
                 .durationMinutes(s.getDurationMinutes())
+                .estimatedDuration(s.getEstimatedDuration())
+                .defaultUnit(s.getDefaultUnit())
                 .isActive(s.getIsActive())
                 .createdAt(s.getCreatedAt())
                 .updatedAt(s.getUpdatedAt())
                 .build();
+    }
+
+    private String generateServiceCode() {
+        return "DV" + java.time.LocalDateTime.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
     }
 }

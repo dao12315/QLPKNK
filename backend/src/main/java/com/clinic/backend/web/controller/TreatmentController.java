@@ -28,6 +28,7 @@ public class TreatmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
+    /** UC15 – Cập nhật hồ sơ điều trị */
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('dentist')")
     public ResponseEntity<TreatmentDto.Response> update(
@@ -36,14 +37,29 @@ public class TreatmentController {
         return ResponseEntity.ok(service.update(id, request));
     }
 
+    /**
+     * Patient xem danh sách hồ sơ điều trị của chính mình theo patientId.
+     *
+     * Lưu ý: endpoint này phải đặt TRƯỚC @GetMapping("/{id}")
+     * để tránh Spring hiểu "patient" là UUID id.
+     */
+    @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
+    public ResponseEntity<List<TreatmentDto.Response>> getByPatient(
+            @PathVariable UUID patientId) {
+        return ResponseEntity.ok(service.getByPatient(patientId));
+    }
+
+    /** Xem chi tiết hồ sơ điều trị */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin')")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
     public ResponseEntity<TreatmentDto.Response> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    /** Tìm kiếm / phân trang hồ sơ điều trị */
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin')")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
     public ResponseEntity<Page<TreatmentDto.Response>> search(
             @ModelAttribute TreatmentDto.Filter filter) {
         return ResponseEntity.ok(service.search(filter));
@@ -57,13 +73,15 @@ public class TreatmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addSession(request));
     }
 
+    /** Xem danh sách phiên điều trị */
     @GetMapping("/{treatmentId}/sessions")
-    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin')")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
     public ResponseEntity<List<TreatmentDto.SessionResponse>> getSessions(
             @PathVariable UUID treatmentId) {
         return ResponseEntity.ok(service.getSessions(treatmentId));
     }
 
+    /** Xóa phiên điều trị */
     @DeleteMapping("/sessions/{sessionId}")
     @PreAuthorize("hasAuthority('dentist')")
     public ResponseEntity<Void> deleteSession(@PathVariable UUID sessionId) {
@@ -79,6 +97,7 @@ public class TreatmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addServiceItem(request));
     }
 
+    /** Cập nhật dịch vụ điều trị */
     @PutMapping("/service-items/{id}")
     @PreAuthorize("hasAuthority('dentist')")
     public ResponseEntity<TreatmentDto.ServiceItemResponse> updateServiceItem(
@@ -87,6 +106,7 @@ public class TreatmentController {
         return ResponseEntity.ok(service.updateServiceItem(id, request));
     }
 
+    /** Xóa dịch vụ điều trị */
     @DeleteMapping("/service-items/{id}")
     @PreAuthorize("hasAuthority('dentist')")
     public ResponseEntity<Void> deleteServiceItem(@PathVariable UUID id) {
@@ -94,8 +114,9 @@ public class TreatmentController {
         return ResponseEntity.noContent().build();
     }
 
+    /** Xem danh sách dịch vụ trong hồ sơ điều trị */
     @GetMapping("/{treatmentId}/service-items")
-    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin')")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
     public ResponseEntity<List<TreatmentDto.ServiceItemResponse>> getServiceItems(
             @PathVariable UUID treatmentId) {
         return ResponseEntity.ok(service.getServiceItems(treatmentId));

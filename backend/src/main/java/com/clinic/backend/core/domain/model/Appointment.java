@@ -48,8 +48,31 @@ public class Appointment {
     @Column(name = "note", length = Integer.MAX_VALUE)
     private String note;
 
+    @Column(name = "reason", length = Integer.MAX_VALUE)
+    private String reason;
+
+    @Column(name = "symptoms", length = Integer.MAX_VALUE)
+    private String symptoms;
+
+    @Size(max = 20)
+    @ColumnDefault("'normal'")
+    @Column(name = "priority", length = 20)
+    private String priority;
+
     @Column(name = "cancellation_reason", length = Integer.MAX_VALUE)
     private String cancellationReason;
+
+    @Column(name = "cancel_reason", length = Integer.MAX_VALUE)
+    private String cancelReason;
+
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;
+
+    @Column(name = "checked_in_at")
+    private Instant checkedInAt;
+
+    @Column(name = "completed_at")
+    private Instant completedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rescheduled_from")

@@ -39,6 +39,11 @@ public class MedicineService {
         m.setStock(req.getStock() != null ? req.getStock() : 0);
         m.setBatchNumber(req.getBatchNumber());
         m.setExpiryDate(req.getExpiryDate());
+        m.setMinStock(req.getMinStock() != null ? req.getMinStock() : 0);
+        m.setActiveIngredient(req.getActiveIngredient());
+        m.setConcentration(req.getConcentration());
+        m.setManufacturer(req.getManufacturer());
+        m.setUsageNote(req.getUsageNote());
         m.setCreatedAt(Instant.now());
         m.setUpdatedAt(Instant.now());
         return toResponse(repo.saveAndFlush(m));
@@ -52,6 +57,11 @@ public class MedicineService {
         if (req.getPrice()       != null) m.setPrice(req.getPrice());
         if (req.getBatchNumber() != null) m.setBatchNumber(req.getBatchNumber());
         if (req.getExpiryDate()  != null) m.setExpiryDate(req.getExpiryDate());
+        if (req.getMinStock() != null) m.setMinStock(req.getMinStock());
+        if (req.getActiveIngredient() != null) m.setActiveIngredient(req.getActiveIngredient());
+        if (req.getConcentration() != null) m.setConcentration(req.getConcentration());
+        if (req.getManufacturer() != null) m.setManufacturer(req.getManufacturer());
+        if (req.getUsageNote() != null) m.setUsageNote(req.getUsageNote());
         m.setUpdatedAt(Instant.now());
         return toResponse(repo.saveAndFlush(m));
     }
@@ -139,7 +149,12 @@ public class MedicineService {
                 .stock(m.getStock())
                 .batchNumber(m.getBatchNumber())
                 .expiryDate(m.getExpiryDate())
-                .lowStock(m.getStock() < LOW_STOCK_THRESHOLD)
+                .minStock(m.getMinStock())
+                .activeIngredient(m.getActiveIngredient())
+                .concentration(m.getConcentration())
+                .manufacturer(m.getManufacturer())
+                .usageNote(m.getUsageNote())
+                .lowStock(m.getStock() < (m.getMinStock() != null ? m.getMinStock() : LOW_STOCK_THRESHOLD))
                 .expired(m.getExpiryDate() != null && m.getExpiryDate().isBefore(today))
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())

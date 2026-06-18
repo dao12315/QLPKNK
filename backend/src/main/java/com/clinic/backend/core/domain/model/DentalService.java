@@ -27,6 +27,14 @@ public class DentalService {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Size(max = 50)
+    @Column(name = "code", unique = true, length = 50)
+    private String code;
+
+    @Size(max = 100)
+    @Column(name = "category", length = 100)
+    private String category;
+
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
@@ -37,6 +45,13 @@ public class DentalService {
 
     @Column(name = "duration_minutes")
     private Integer durationMinutes;
+
+    @Column(name = "estimated_duration")
+    private Integer estimatedDuration;
+
+    @Size(max = 50)
+    @Column(name = "default_unit", length = 50)
+    private String defaultUnit;
 
     @NotNull
     @ColumnDefault("true")

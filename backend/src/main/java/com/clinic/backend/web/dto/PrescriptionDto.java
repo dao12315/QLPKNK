@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,7 @@ public class PrescriptionDto {
         private UUID medicineId;
         private String medicineName;
         private String medicineUnit;
+        private BigDecimal medicinePrice;
         private Integer quantity;
         private String dosage;
     }
@@ -44,6 +46,8 @@ public class PrescriptionDto {
     public static class Response {
         private UUID id;
         private UUID treatmentId;
+        private String patientName;
+        private String doctorName;
         private String note;
         private List<ItemResponse> items;
         private Instant createdAt;

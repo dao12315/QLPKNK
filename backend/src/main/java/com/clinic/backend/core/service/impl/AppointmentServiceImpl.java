@@ -62,10 +62,39 @@ public class AppointmentServiceImpl implements AppointmentService {
         appt.setStartTime(req.getStartTime());
         appt.setEndTime(req.getEndTime());
         appt.setNote(req.getNote());
+        appt.setReason(req.getReason());
+        appt.setSymptoms(req.getSymptoms());
+        appt.setPriority(req.getPriority() != null ? req.getPriority() : "normal");
         appt.setStatus("pending");
         appt.setCreatedAt(Instant.now());
         appt.setUpdatedAt(Instant.now());
 
+        return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
+    }
+
+    @Override
+    public AppointmentDto.Response update(UUID id, AppointmentDto.UpdateRequest req) {
+        Appointment appt = findOrThrow(id);
+        Instant start = req.getStartTime() != null ? req.getStartTime() : appt.getStartTime();
+        Instant end = req.getEndTime() != null ? req.getEndTime() : appt.getEndTime();
+        validateTimeRange(start, end);
+        checkConflict(appt.getDoctor().getId(), start, end, id);
+
+        if (req.getPatientId() != null && !req.getPatientId().equals(appt.getPatient().getId())) {
+            appt.setPatient(patientRepo.findById(req.getPatientId())
+                    .orElseThrow(() -> new EntityNotFoundException("Patient not found: " + req.getPatientId())));
+        }
+        if (req.getDoctorId() != null && !req.getDoctorId().equals(appt.getDoctor().getId())) {
+            appt.setDoctor(doctorRepo.findById(req.getDoctorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + req.getDoctorId())));
+        }
+        appt.setStartTime(start);
+        appt.setEndTime(end);
+        if (req.getNote() != null) appt.setNote(req.getNote());
+        if (req.getReason() != null) appt.setReason(req.getReason());
+        if (req.getSymptoms() != null) appt.setSymptoms(req.getSymptoms());
+        if (req.getPriority() != null) appt.setPriority(req.getPriority());
+        appt.setUpdatedAt(Instant.now());
         return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
     }
 
@@ -76,6 +105,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!"pending".equals(appt.getStatus()))
             throw new IllegalStateException("Only pending appointments can be confirmed");
         appt.setStatus("confirmed");
+        if (appt.getConfirmedAt() == null) appt.setConfirmedAt(Instant.now());
         appt.setUpdatedAt(Instant.now());
         return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
     }
@@ -88,7 +118,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new IllegalStateException("Cannot cancel appointment with status: " + appt.getStatus());
 
         appt.setStatus("cancelled");
-        appt.setCancellationReason(req.getCancellationReason());
+        String reason = req.getCancelReason() != null ? req.getCancelReason() : req.getCancellationReason();
+        appt.setCancellationReason(reason);
+        appt.setCancelReason(reason);
         appt.setUpdatedAt(Instant.now());
         return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
     }
@@ -115,6 +147,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         newAppt.setStartTime(req.getNewStartTime());
         newAppt.setEndTime(req.getNewEndTime());
         newAppt.setNote(req.getNote());
+        newAppt.setPriority("normal");
         newAppt.setStatus("pending");
         newAppt.setRescheduledFrom(original); // object reference, không phải UUID
         newAppt.setCreatedAt(Instant.now());
@@ -178,6 +211,51 @@ public class AppointmentServiceImpl implements AppointmentService {
                 : UUID.fromString("00000000-0000-0000-0000-000000000000");
         if (appointmentRepo.hasConflict(doctorId, start, end, safeExclude))
             throw new IllegalStateException("Doctor has a conflicting appointment in this time slot");
+    }
+    // ─── Bác sĩ bắt đầu khám ────────────────────────────
+    @Override
+    public AppointmentDto.Response start(UUID id) {
+        Appointment appt = findOrThrow(id);
+
+        if (!List.of("confirmed", "checked_in").contains(appt.getStatus())) {
+            throw new IllegalStateException("Only confirmed or checked_in appointments can be started");
+        }
+
+        appt.setStatus("in_progress");
+        appt.setUpdatedAt(Instant.now());
+
+        return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
+    }
+
+    // ─── Bác sĩ hoàn thành khám ─────────────────────────
+    @Override
+    public AppointmentDto.Response complete(UUID id) {
+        Appointment appt = findOrThrow(id);
+
+        if (!"in_progress".equals(appt.getStatus())) {
+            throw new IllegalStateException("Only in_progress appointments can be completed");
+        }
+
+        appt.setStatus("done");
+        if (appt.getCompletedAt() == null) appt.setCompletedAt(Instant.now());
+        appt.setUpdatedAt(Instant.now());
+
+        return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
+    }
+
+    @Override
+    public AppointmentDto.Response checkIn(UUID id) {
+        Appointment appt = findOrThrow(id);
+
+        if (List.of("done", "cancelled", "no_show").contains(appt.getStatus())) {
+            throw new IllegalStateException("Cannot check in appointment with status: " + appt.getStatus());
+        }
+
+        appt.setStatus("checked_in");
+        if (appt.getCheckedInAt() == null) appt.setCheckedInAt(Instant.now());
+        appt.setUpdatedAt(Instant.now());
+
+        return mapper.toResponse(appointmentRepo.saveAndFlush(appt));
     }
 }
 

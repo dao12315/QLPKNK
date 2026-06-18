@@ -20,7 +20,15 @@ public class DoctorResponse {
 
     private String specialization;
 
+    private String licenseNumber;
+
+    private String degree;
+
     private Integer experienceYears;
+
+    private Integer yearsOfExperience;
+
+    private String room;
 
     private String phone;
 

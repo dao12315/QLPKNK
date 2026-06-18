@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -34,10 +35,28 @@ public class TreatmentSession {
     @Column(name = "note", length = Integer.MAX_VALUE)
     private String note;
 
+    @Column(name = "session_date")
+    private Instant sessionDate;
+
+    @Column(name = "procedure_performed", length = Integer.MAX_VALUE)
+    private String procedurePerformed;
+
+    @Column(name = "doctor_note", length = Integer.MAX_VALUE)
+    private String doctorNote;
+
+    @Column(name = "patient_response", length = Integer.MAX_VALUE)
+    private String patientResponse;
+
+    @Column(name = "next_appointment_date")
+    private LocalDate nextAppointmentDate;
+
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
 }

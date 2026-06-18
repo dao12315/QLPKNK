@@ -14,18 +14,26 @@ public class ServiceDto {
     @Data
     public static class CreateRequest {
         @NotBlank private String name;
+        private String code;
+        private String category;
         private String description;
         @NotNull @DecimalMin("0") private BigDecimal price;
         private Integer durationMinutes;
+        private Integer estimatedDuration;
+        private String defaultUnit;
         private Boolean isActive = true;
     }
 
     @Data
     public static class UpdateRequest {
         private String name;
+        private String code;
+        private String category;
         private String description;
         @DecimalMin("0") private BigDecimal price;
         private Integer durationMinutes;
+        private Integer estimatedDuration;
+        private String defaultUnit;
         private Boolean isActive;
     }
 
@@ -34,9 +42,13 @@ public class ServiceDto {
     public static class Response {
         private UUID id;
         private String name;
+        private String code;
+        private String category;
         private String description;
         private BigDecimal price;
         private Integer durationMinutes;
+        private Integer estimatedDuration;
+        private String defaultUnit;
         private Boolean isActive;
         private Instant createdAt;
         private Instant updatedAt;

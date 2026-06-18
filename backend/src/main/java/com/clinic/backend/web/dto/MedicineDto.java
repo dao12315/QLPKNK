@@ -23,6 +23,11 @@ public class MedicineDto {
         @Min(0) private Integer stock = 0;
         private String batchNumber;
         private LocalDate expiryDate;
+        @Min(0) private Integer minStock;
+        private String activeIngredient;
+        private String concentration;
+        private String manufacturer;
+        private String usageNote;
     }
 
     @Data
@@ -32,6 +37,11 @@ public class MedicineDto {
         @DecimalMin("0") private BigDecimal price;
         private String batchNumber;
         private LocalDate expiryDate;
+        @Min(0) private Integer minStock;
+        private String activeIngredient;
+        private String concentration;
+        private String manufacturer;
+        private String usageNote;
     }
 
     /** UC21 – Điều chỉnh tồn kho: delta > 0 = nhập, delta < 0 = xuất */
@@ -51,6 +61,11 @@ public class MedicineDto {
         private Integer stock;
         private String batchNumber;
         private LocalDate expiryDate;
+        private Integer minStock;
+        private String activeIngredient;
+        private String concentration;
+        private String manufacturer;
+        private String usageNote;
         private boolean lowStock;   // stock < 10
         private boolean expired;    // expiryDate trước hôm nay
         private Instant createdAt;

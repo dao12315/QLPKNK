@@ -44,9 +44,10 @@ public class InvoiceController {
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasAnyAuthority('receptionist', 'admin')")
     public ResponseEntity<InvoiceDto.Response> cancel(
-            @PathVariable UUID id) {
+            @PathVariable UUID id,
+            @RequestBody(required = false) InvoiceDto.UpdateRequest request) {
 
-        return ResponseEntity.ok(service.cancel(id));
+        return ResponseEntity.ok(service.cancel(id, request));
     }
 
     /** UC23 – Ghi nhận thanh toán */

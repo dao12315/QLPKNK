@@ -57,7 +57,7 @@ public class PatientService extends BaseServiceImpl<
 
         User user = new User();
 
-        user.setName(req.getName());
+        user.setName(req.getName() != null ? req.getName() : req.getFullName());
         user.setEmail(req.getEmail());
 
         user.setPassword(
@@ -76,6 +76,9 @@ public class PatientService extends BaseServiceImpl<
         Patient patient = mapper.toEntity(req);
         patient.setCreatedAt(Instant.now());
         patient.setUpdatedAt(Instant.now());
+        if (patient.getStatus() == null) {
+            patient.setStatus("active");
+        }
         patient.setUser(user);
 
         patient = patientRepository.saveAndFlush(patient);
@@ -92,6 +95,7 @@ public class PatientService extends BaseServiceImpl<
 
         // update patient fields
         mapper.update(patient, req);
+        patient.setUpdatedAt(Instant.now());
 
         // update user nếu cần
         User user = patient.getUser();
@@ -99,6 +103,9 @@ public class PatientService extends BaseServiceImpl<
 
             if (req.getName() != null) {
                 user.setName(req.getName());
+            }
+            if (req.getFullName() != null && req.getName() == null) {
+                user.setName(req.getFullName());
             }
 
             if (req.getEmail() != null &&
@@ -178,5 +185,13 @@ public class PatientService extends BaseServiceImpl<
         }
 
         return patients.map(mapper::toResponse);
+    }
+    public PatientResponse getMe(UUID userId) {
+        Patient patient = patientRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new BadRequestException(
+                        "Không tìm thấy hồ sơ bệnh nhân của tài khoản hiện tại"
+                ));
+
+        return mapper.toResponse(patient);
     }
 }

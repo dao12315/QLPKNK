@@ -19,9 +19,13 @@ public class DoctorMapper extends BaseMapperImpl<
 
         Doctor doctor = new Doctor();
 
-        doctor.setFullName(req.getFullName());
+        doctor.setFullName(req.getFullName() != null ? req.getFullName() : req.getName());
         doctor.setSpecialization(req.getSpecialization());
+        doctor.setLicenseNumber(req.getLicenseNumber());
+        doctor.setDegree(req.getDegree());
         doctor.setExperienceYears(req.getExperienceYears());
+        doctor.setYearsOfExperience(req.getYearsOfExperience() != null ? req.getYearsOfExperience() : req.getExperienceYears());
+        doctor.setRoom(req.getRoom());
         doctor.setPhone(req.getPhone());
 
         return doctor;
@@ -35,7 +39,11 @@ public class DoctorMapper extends BaseMapperImpl<
                 .userId(doctor.getUser().getId())
                 .fullName(doctor.getFullName())
                 .specialization(doctor.getSpecialization())
+                .licenseNumber(doctor.getLicenseNumber())
+                .degree(doctor.getDegree())
                 .experienceYears(doctor.getExperienceYears())
+                .yearsOfExperience(doctor.getYearsOfExperience() != null ? doctor.getYearsOfExperience() : doctor.getExperienceYears())
+                .room(doctor.getRoom())
                 .phone(doctor.getPhone())
                 .createdAt(doctor.getCreatedAt())
                 .updatedAt(doctor.getUpdatedAt())
@@ -53,8 +61,24 @@ public class DoctorMapper extends BaseMapperImpl<
             doctor.setSpecialization(req.getSpecialization());
         }
 
+        if (req.getLicenseNumber() != null) {
+            doctor.setLicenseNumber(req.getLicenseNumber());
+        }
+
+        if (req.getDegree() != null) {
+            doctor.setDegree(req.getDegree());
+        }
+
         if (req.getExperienceYears() != null) {
             doctor.setExperienceYears(req.getExperienceYears());
+        }
+
+        if (req.getYearsOfExperience() != null) {
+            doctor.setYearsOfExperience(req.getYearsOfExperience());
+        }
+
+        if (req.getRoom() != null) {
+            doctor.setRoom(req.getRoom());
         }
 
         if (req.getPhone() != null) {

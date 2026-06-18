@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public class ScheduleDto {
@@ -18,6 +19,10 @@ public class ScheduleDto {
         @NotNull private LocalTime startTime;
         @NotNull private LocalTime endTime;
         private Boolean isActive = true;
+        private String room;
+        private Integer maxPatients;
+        private LocalDate effectiveFrom;
+        private LocalDate effectiveTo;
     }
 
     @Data
@@ -25,6 +30,10 @@ public class ScheduleDto {
         private LocalTime startTime;
         private LocalTime endTime;
         private Boolean isActive;
+        private String room;
+        private Integer maxPatients;
+        private LocalDate effectiveFrom;
+        private LocalDate effectiveTo;
     }
 
     @Data
@@ -38,5 +47,9 @@ public class ScheduleDto {
         private LocalTime startTime;
         private LocalTime endTime;
         private Boolean isActive;
+        private String room;
+        private Integer maxPatients;
+        private LocalDate effectiveFrom;
+        private LocalDate effectiveTo;
     }
 }

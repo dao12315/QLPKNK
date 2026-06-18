@@ -37,8 +37,23 @@ public class Doctor {
     @Column(name = "specialization", length = 100)
     private String specialization;
 
+    @Size(max = 50)
+    @Column(name = "license_number", length = 50)
+    private String licenseNumber;
+
+    @Size(max = 100)
+    @Column(name = "degree", length = 100)
+    private String degree;
+
     @Column(name = "experience_years")
     private Integer experienceYears;
+
+    @Column(name = "years_of_experience")
+    private Integer yearsOfExperience;
+
+    @Size(max = 50)
+    @Column(name = "room", length = 50)
+    private String room;
 
     @Size(max = 20)
     @Column(name = "phone", length = 20)

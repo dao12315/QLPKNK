@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface PrescriptionItemRepository extends JpaRepository<PrescriptionItem, UUID> {
     // prescription là object → query bằng prescription.id
     List<PrescriptionItem> findByPrescription_Id(UUID prescriptionId);
+    List<PrescriptionItem> findByPrescription_Treatment_Id(UUID treatmentId);
     void deleteByPrescription_Id(UUID prescriptionId);
 }

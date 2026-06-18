@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -44,5 +45,16 @@ public class DoctorSchedule {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "room", length = 50)
+    private String room;
+
+    @Column(name = "max_patients")
+    private Integer maxPatients;
+
+    @Column(name = "effective_from")
+    private LocalDate effectiveFrom;
+
+    @Column(name = "effective_to")
+    private LocalDate effectiveTo;
 
 }

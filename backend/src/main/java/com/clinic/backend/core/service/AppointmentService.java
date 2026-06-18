@@ -13,6 +13,8 @@ public interface AppointmentService {
     // UC09 – Đặt lịch hẹn
     AppointmentDto.Response create(AppointmentDto.CreateRequest request);
 
+    AppointmentDto.Response update(UUID id, AppointmentDto.UpdateRequest request);
+
     // UC10 – Xác nhận lịch hẹn
     AppointmentDto.Response confirm(UUID id);
 
@@ -30,4 +32,13 @@ public interface AppointmentService {
 
     // Lấy theo ID
     AppointmentDto.Response getById(UUID id);
+
+    // Bác sĩ bắt đầu khám
+    AppointmentDto.Response start(UUID id);
+
+    // Bác sĩ hoàn thành khám
+    AppointmentDto.Response complete(UUID id);
+
+    AppointmentDto.Response checkIn(UUID id);
+
 }

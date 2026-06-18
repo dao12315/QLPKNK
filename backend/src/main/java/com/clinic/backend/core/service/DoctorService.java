@@ -66,7 +66,7 @@ public class DoctorService extends BaseServiceImpl<
 
         User user = new User();
 
-        user.setName(req.getName());
+        user.setName(req.getName() != null ? req.getName() : req.getFullName());
         user.setEmail(req.getEmail());
 
         user.setPassword(

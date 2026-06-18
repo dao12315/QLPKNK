@@ -19,7 +19,18 @@ public class ScheduleController {
 
     private final ScheduleService service;
 
-    /** UC13 – Tạo ca làm việc */
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'receptionist', 'dentist', 'patient')")
+    public ResponseEntity<List<ScheduleDto.Response>> getAll(
+            @RequestParam(required = false) UUID doctorId,
+            @RequestParam(required = false) Boolean isActive) {
+        if (doctorId != null) {
+            return ResponseEntity.ok(service.getByDoctor(doctorId, isActive != null && isActive));
+        }
+
+        return ResponseEntity.ok(service.getAll());
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ScheduleDto.Response> create(
@@ -27,7 +38,6 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
-    /** UC13 – Cập nhật ca làm việc */
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ScheduleDto.Response> update(
@@ -36,7 +46,6 @@ public class ScheduleController {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    /** UC13 – Xóa ca làm việc */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
@@ -44,9 +53,8 @@ public class ScheduleController {
         return ResponseEntity.noContent().build();
     }
 
-    /** UC14 – Xem lịch làm việc của bác sĩ */
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyAuthority('admin', 'receptionist')")
+    @PreAuthorize("hasAnyAuthority('admin', 'receptionist', 'dentist', 'patient')")
     public ResponseEntity<List<ScheduleDto.Response>> getByDoctor(
             @PathVariable UUID doctorId,
             @RequestParam(defaultValue = "false") boolean activeOnly) {

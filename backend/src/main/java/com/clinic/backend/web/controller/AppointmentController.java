@@ -31,6 +31,14 @@ public class AppointmentController {
                 .body(service.create(request));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('receptionist', 'admin')")
+    public ResponseEntity<AppointmentDto.Response> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody AppointmentDto.UpdateRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
+    }
+
     /** UC10 – Xác nhận lịch hẹn */
     @PatchMapping("/{id}/confirm")
     @PreAuthorize("hasAnyAuthority('receptionist', 'admin')")
@@ -63,7 +71,7 @@ public class AppointmentController {
      * doctorId = X → riêng bác sĩ đó
      */
     @GetMapping("/day")
-    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin')")
+    @PreAuthorize("hasAnyAuthority('dentist', 'receptionist', 'admin', 'patient')")
     public ResponseEntity<List<AppointmentDto.Response>> getForDay(
             @RequestParam(required = false) UUID doctorId,
             @RequestParam(required = false)
@@ -80,7 +88,7 @@ public class AppointmentController {
 
     /** Tìm kiếm lịch hẹn */
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('receptionist', 'admin', 'dentist')")
+    @PreAuthorize("hasAnyAuthority('receptionist', 'admin', 'dentist', 'patient')")
     public ResponseEntity<Page<AppointmentDto.Response>> search(
             @ModelAttribute AppointmentDto.Filter filter) {
         return ResponseEntity.ok(service.search(filter));
@@ -93,4 +101,29 @@ public class AppointmentController {
             @PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
+
+
+    /** Bác sĩ bắt đầu khám */
+    @PatchMapping("/{id}/start")
+    @PreAuthorize("hasAnyAuthority('dentist', 'admin', 'receptionist')")
+    public ResponseEntity<AppointmentDto.Response> start(
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(service.start(id));
+    }
+
+    @PatchMapping("/{id}/check-in")
+    @PreAuthorize("hasAnyAuthority('dentist', 'admin', 'receptionist')")
+    public ResponseEntity<AppointmentDto.Response> checkIn(
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(service.checkIn(id));
+    }
+
+    /** Bác sĩ hoàn thành khám */
+    @PatchMapping("/{id}/done")
+    @PreAuthorize("hasAnyAuthority('dentist', 'admin', 'receptionist')")
+    public ResponseEntity<AppointmentDto.Response> complete(
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(service.complete(id));
+    }
+
 }

@@ -40,6 +40,10 @@ public class ScheduleService {
         schedule.setStartTime(req.getStartTime());
         schedule.setEndTime(req.getEndTime());
         schedule.setIsActive(req.getIsActive() != null ? req.getIsActive() : true);
+        schedule.setRoom(req.getRoom());
+        schedule.setMaxPatients(req.getMaxPatients());
+        schedule.setEffectiveFrom(req.getEffectiveFrom());
+        schedule.setEffectiveTo(req.getEffectiveTo());
 
         return mapper.toResponse(repo.saveAndFlush(schedule));
     }
@@ -51,6 +55,10 @@ public class ScheduleService {
         if (req.getStartTime() != null) schedule.setStartTime(req.getStartTime());
         if (req.getEndTime()   != null) schedule.setEndTime(req.getEndTime());
         if (req.getIsActive()  != null) schedule.setIsActive(req.getIsActive());
+        if (req.getRoom() != null) schedule.setRoom(req.getRoom());
+        if (req.getMaxPatients() != null) schedule.setMaxPatients(req.getMaxPatients());
+        if (req.getEffectiveFrom() != null) schedule.setEffectiveFrom(req.getEffectiveFrom());
+        if (req.getEffectiveTo() != null) schedule.setEffectiveTo(req.getEffectiveTo());
         return mapper.toResponse(repo.saveAndFlush(schedule));
     }
 
@@ -68,5 +76,10 @@ public class ScheduleService {
                 ? repo.findByDoctor_IdAndIsActiveTrue(doctorId)
                 : repo.findByDoctor_IdOrderByDayOfWeekAsc(doctorId);
         return mapper.toList(list);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleDto.Response> getAll() {
+        return mapper.toList(repo.findAll());
     }
 }
